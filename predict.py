@@ -1,7 +1,7 @@
 import torch
 import utils
 
-def predict(data, model_name):
+def predict(model_name, data):
 
 	device = utils.get_device(1)
 	model = torch.load("saved_models/"+model_name).to(device)
