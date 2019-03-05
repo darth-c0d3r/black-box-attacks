@@ -3,9 +3,11 @@ import torchvision
 import torch
 import os
 
-def disp_img(img):
+def disp_img(img, size=None):
 	trans = torchvision.transforms.ToPILImage()
 	img = trans(img)
+	if size is not None:
+		img = img.resize(size)
 	img.show()
 
 def print_dataset_details(dataset):

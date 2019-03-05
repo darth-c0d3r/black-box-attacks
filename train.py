@@ -6,6 +6,8 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
 
+from white_box import *
+
 # hyper-parameters
 
 EPOCHS = 20
@@ -79,8 +81,10 @@ def main():
 	# optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 	optimizer = optim.Adagrad(model.parameters(), lr=0.01)
 
-	train(model, dataset, criterion, optimizer, device)
-	utils.save_model(model)
+	adv_sample("conv1.pt", dataset["eval"], 1.0, 1)
+
+	# train(model, dataset, criterion, optimizer, device)
+	# utils.save_model(model)
 
 if __name__ == '__main__':
 	main()
