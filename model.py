@@ -8,6 +8,9 @@ class Classifier(nn.Module):
 		super(Classifier, self).__init__()
 
 		self.dropout_rate = 0.5
+		self.n_classes = n_classes
+		self.input_size = size
+		self.size = size
 
 		# convolutional layers
 		kernel_size = [5] * (len(conv)-1)
@@ -19,10 +22,11 @@ class Classifier(nn.Module):
 
 		for i in range(len(conv)-1):
 			self.conv_layers.append(nn.Conv2d(conv[i], conv[i+1], kernel_size[i], stride[i], padding[i]))
-			size[0] = (size[0] + 2*padding[i] - kernel_size[i])//stride[i] + 1
+			size[0] = conv[i+1]
 			size[1] = (size[1] + 2*padding[i] - kernel_size[i])//stride[i] + 1
+			size[2] = (size[2] + 2*padding[i] - kernel_size[i])//stride[i] + 1
 
-		self.size = size[0]*size[1]*conv[-1]
+		self.size = self.size[0] * self.size[1] * self.size[2]
 		print("Input Size to FC : %d" % (self.size))
 
 		# fully connected layers
@@ -42,7 +46,7 @@ class Classifier(nn.Module):
 
 		# convolutional layers
 		for conv_layer in self.conv_layers:
-			x =torch.relu(conv_layer(x))
+			x = torch.relu(conv_layer(x))
 
 		# fully connected layers
 		x = x.view(-1, self.size)

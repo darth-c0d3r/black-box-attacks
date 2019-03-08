@@ -76,15 +76,14 @@ def main():
 	fc = []
 	n_classes = 10
 
-	model = Classifier(input_shape[1:], conv, fc, n_classes).to(device)
+	model = Classifier(input_shape, conv, fc, n_classes).to(device)
 	criterion = nn.CrossEntropyLoss().to(device)
+
 	# optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 	optimizer = optim.Adagrad(model.parameters(), lr=0.01)
 
-	adv_sample("conv1.pt", dataset["eval"], 1.0, 1)
-
-	# train(model, dataset, criterion, optimizer, device)
-	# utils.save_model(model)
+	train(model, dataset, criterion, optimizer, device)
+	utils.save_model(model)
 
 if __name__ == '__main__':
 	main()
