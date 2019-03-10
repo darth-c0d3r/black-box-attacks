@@ -1,9 +1,8 @@
 import torch
 import utils
 
-def predict(model, data):
+def predict(model, data, device):
 
-	device = utils.get_device(1)
 	model = model.to(device)
 
 	data_loader = torch.utils.data.DataLoader(data, batch_size=len(data), shuffle=False)

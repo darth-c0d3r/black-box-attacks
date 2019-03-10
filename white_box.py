@@ -35,7 +35,6 @@ def adv_sample(model_name, dataset, target):
 
 		data = data.to(device)
 		sample, target = Variable(torch.randn([1,1,28,28]).to(device), requires_grad=True), Variable(target).to(device)
-		print(sample.shape)
 
 		# sample = (sample - torch.min(sample)) / (torch.max(sample) - torch.min(sample))
 		sample = torch.clamp(sample,0,1)
@@ -133,11 +132,8 @@ def adv_sample_papernot(model_name, dataset, target):
 				for i in range(len(indices)-1,-1,-1):
 					sample, target = Variable(sample.data).to(device), Variable(target).to(device)
 					output = model(sample)
-					pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
-					# print(pred[0][0])
-					# print(target[0][target_])
+					pred = output.data.max(1, keepdim=True)[1]
 					if torch.eq(pred[0][0],target[0][target_].long()):
-						# print(pred[0][0])
 						print("Done")
 						break
 					sample[0][0][indices[i]//sample.shape[3]][indices[i]%sample.shape[3]] -= delta[0][0][indices[i]//sample.shape[3]][indices[i]%sample.shape[3]]

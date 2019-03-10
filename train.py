@@ -1,21 +1,16 @@
 import torch
 from model import Classifier
-from dataset import get_MNIST_Dataset
 import utils
 import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
-
-from white_box import *
 from predict import predict
 
 # hyper-parameters
 
-EPOCHS = 20
-BATCH_SIZE = 1000
-REPORT_EVERY = 12
+def train(model, dataset, criterion, optimizer, device, EPOCHS, BATCH_SIZE):
 
-def train(model, dataset, criterion, optimizer, device):
+	REPORT_EVERY = (len(dataset["train"]) // BATCH_SIZE) // 5
 
 	for epoch in range(1,EPOCHS+1):
 		train_loader = torch.utils.data.DataLoader(dataset['train'], batch_size=BATCH_SIZE, shuffle=True)
@@ -41,31 +36,4 @@ def train(model, dataset, criterion, optimizer, device):
 					loss.item(), correct, len(data), float(correct)/float(len(data))))
 
 		# Evaluate
-		predict(model, dataset['eval'])
-
-def main():
-
-	device = utils.get_device(1)
-
-	dataset = get_MNIST_Dataset()
-	utils.print_dataset_details(dataset)
-
-	input_shape = list(dataset["train"][0][0].shape)
-
-	conv = [1, 4, 8, 16, 32]
-	fc = []
-	n_classes = 10
-
-	model = Classifier(input_shape, conv, fc, n_classes).to(device)
-	criterion = nn.CrossEntropyLoss().to(device)
-
-	# optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
-	optimizer = optim.Adagrad(model.parameters(), lr=0.01)
-
-	# train(model, dataset, criterion, optimizer, device)
-	# utils.save_model(model)
-
-	adv_sample_papernot("conv1.pt", dataset["eval"], 1)
-
-if __name__ == '__main__':
-	main()
+		predict(model, dataset['eval'], device)
