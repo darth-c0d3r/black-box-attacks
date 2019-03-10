@@ -1,10 +1,10 @@
 import torch
 import utils
 
-def oracle(model_name, data):
+def oracle(model, data):
 
 	device = utils.get_device(1)
-	model = torch.load("saved_models/"+model_name).to(device)
+	model = model.to(device)
 
 	data_loader = torch.utils.data.DataLoader(data, batch_size=len(data), shuffle=False)
 	pred = None

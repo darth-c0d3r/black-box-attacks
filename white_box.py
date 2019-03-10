@@ -35,7 +35,7 @@ def adv_sample(model_name, dataset, target):
 	for data, label in data_loader:
 
 		data = data.to(device)
-		sample, target = Variable(torch.randn(([1]+[model.input_size])).to(device), requires_grad=True), Variable(target).to(device)
+		sample, target = Variable(torch.randn(([1]+model.input_size)).to(device), requires_grad=True), Variable(target).to(device)
 
 		# sample = (sample - torch.min(sample)) / (torch.max(sample) - torch.min(sample))
 		sample = torch.clamp(sample,0,1)

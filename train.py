@@ -7,6 +7,7 @@ import torch.optim as optim
 from torch.autograd import Variable
 
 from white_box import *
+from predict import predict
 
 # hyper-parameters
 
@@ -40,25 +41,26 @@ def train(model, dataset, criterion, optimizer, device):
 					loss.item(), correct, len(data), float(correct)/float(len(data))))
 
 		# Evaluate
-		model.eval()
-		eval_loss = float(0)
-		correct = 0
-		eval_loader = torch.utils.data.DataLoader(dataset['eval'], batch_size=BATCH_SIZE, shuffle=False)
+		predict(model, dataset['eval'])
+		# model.eval()
+		# eval_loss = float(0)
+		# correct = 0
+		# eval_loader = torch.utils.data.DataLoader(dataset['eval'], batch_size=BATCH_SIZE, shuffle=False)
 
-		with torch.no_grad():
-			for data, target in eval_loader:
-				data, target = Variable(data.to(device)), Variable((target).to(device))
-				output = model(data)
-				eval_loss += len(data) * criterion(output, target).item() # sum up batch loss
-				pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
-				correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+		# with torch.no_grad():
+		# 	for data, target in eval_loader:
+		# 		data, target = Variable(data.to(device)), Variable((target).to(device))
+		# 		output = model(data)
+		# 		eval_loss += len(data) * criterion(output, target).item() # sum up batch loss
+		# 		pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
+		# 		correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
-		eval_loss /= len(eval_loader.dataset)
-		accuracy = float(correct) / len(eval_loader.dataset)
+		# eval_loss /= len(eval_loader.dataset)
+		# accuracy = float(correct) / len(eval_loader.dataset)
 
-		print('Eval Epoch: {} [{}/{} ({:.6f}%)] Loss: {:.6f}, Accuracy: {}/{} ({:.6f})'.format(
-					epoch, len(eval_loader.dataset), len(eval_loader.dataset),
-					100.0, eval_loss, correct, len(eval_loader.dataset), accuracy))
+		# print('Eval Epoch: {} [{}/{} ({:.6f}%)] Loss: {:.6f}, Accuracy: {}/{} ({:.6f})'.format(
+		# 			epoch, len(eval_loader.dataset), len(eval_loader.dataset),
+		# 			100.0, eval_loss, correct, len(eval_loader.dataset), accuracy))
 
 
 
@@ -72,7 +74,7 @@ def main():
 
 	input_shape = list(dataset["train"][0][0].shape)
 
-	conv = [input_shape[0], 4, 8, 16, 32]
+	conv = [1, 4, 8, 16, 32]
 	fc = []
 	n_classes = 10
 

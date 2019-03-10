@@ -9,8 +9,7 @@ class Classifier(nn.Module):
 
 		self.dropout_rate = 0.5
 		self.n_classes = n_classes
-		self.input_size = size
-		self.size = size
+		self.input_size = size[:]
 
 		# convolutional layers
 		kernel_size = [5] * (len(conv)-1)
@@ -26,7 +25,7 @@ class Classifier(nn.Module):
 			size[1] = (size[1] + 2*padding[i] - kernel_size[i])//stride[i] + 1
 			size[2] = (size[2] + 2*padding[i] - kernel_size[i])//stride[i] + 1
 
-		self.size = self.size[0] * self.size[1] * self.size[2]
+		self.size = size[0] * size[1] * size[2]
 		print("Input Size to FC : %d" % (self.size))
 
 		# fully connected layers
