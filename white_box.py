@@ -53,6 +53,9 @@ def adv_sample(model_name, dataset, target):
 			sample = torch.clamp(sample,0,1)
 
 		samples[idx] = sample[0]
+		output = model(sample)
+		pred = output.data.max(1, keepdim=True)[1]
+		print(pred[0][0])
 		idx += 1
 
 		if idx == NUM_SAMPLES:

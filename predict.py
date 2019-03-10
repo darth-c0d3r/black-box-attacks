@@ -1,11 +1,11 @@
 import torch
 import utils
 
-def predict(model, data, device):
+def predict(model, dataset, device):
 
 	model = model.to(device)
 
-	data_loader = torch.utils.data.DataLoader(data, batch_size=len(data), shuffle=False)
+	data_loader = torch.utils.data.DataLoader(dataset, batch_size=len(dataset), shuffle=False)
 
 	model.eval()
 	with torch.no_grad():

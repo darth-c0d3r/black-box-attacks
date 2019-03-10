@@ -1,5 +1,8 @@
 import torch
 import torchvision
+from torch.utils.data import Dataset, DataLoader
+from PIL import Image
+import os
 
 def get_MNIST_Dataset():
 
@@ -19,8 +22,8 @@ class Adv_Dataset(Dataset):
 	
 	def __init__(self):
 		self.root_dir = "adv_samples/"
-		self.all_files = os.listdir()
-		sort(self.all_files)
+		self.all_files = os.listdir(self.root_dir)
+		self.all_files.sort()
 
 		self.size = len(self.all_files)
 		self.all_labels = [int(label[-5]) for label in self.all_files]

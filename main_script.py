@@ -89,4 +89,19 @@ if args['adv']:
 	target = 1 # int(input("Directed Label to misclassify: "))
 
 	samples = adv_sample(model_name, dataset['eval'], target)
+
 	utils.save_images(samples, target)
+
+
+
+# oracle_model = torch.load("saved_models/conv1.pt")
+sub_model = torch.load("saved_models/sub1.pt")
+
+print("For sub model: ")
+data = get_Adv_Dataset()
+predict(sub_model, data, device)
+
+
+# print("For black box model: ")
+# data = get_Adv_Dataset()
+# predict(oracle_model, data, device)
