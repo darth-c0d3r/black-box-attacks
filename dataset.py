@@ -14,3 +14,27 @@ def get_MNIST_Dataset():
 											   ]))
 
 	return {'train':train_dataset,'eval':eval_dataset}
+
+class Adv_Dataset(Dataset):
+	
+	def __init__(self):
+		self.root_dir = "adv_samples/"
+		self.all_files = os.listdir()
+		sort(self.all_files)
+
+		self.size = len(self.all_files)
+		self.all_labels = [int(label[-5]) for label in self.all_files]
+
+	def __len__(self):
+		return self.size
+
+	def __getitem__(self, idx):
+		img = Image.open(self.root_dir+self.all_files[idx])
+		trans = torchvision.transforms.ToTensor()
+
+		sample = (trans(img), torch.tensor(self.all_labels[idx]))
+		return sample
+			
+
+def get_Adv_Dataset():
+	return Adv_Dataset()
