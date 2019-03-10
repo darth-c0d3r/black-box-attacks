@@ -38,7 +38,10 @@ def save_model(model):
 
 
 def save_image(img, name):
-	torch.save(img, "adv_samples/"+name)
+	folder = "adv_samples"
+	if folder not in os.listdir():
+		os.mkdir("adv_samples")
+	torch.save(img, folder+"/"+name)
 
 def save_images(images, target):
 	for i in range(images.shape[0]):
