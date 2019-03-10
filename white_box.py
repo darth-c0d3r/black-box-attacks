@@ -75,7 +75,10 @@ def adv_sample_papernot(model_name, dataset, target):
 	'''
 	device = utils.get_device(1)
 
+	EPOCHS = 100
+	LAMBDA = 20.0
 	NUM_SAMPLES = 10
+	EPSILON = 0.5
 
 	samples = []
 
@@ -96,36 +99,60 @@ def adv_sample_papernot(model_name, dataset, target):
 	for data, label in data_loader:
 
 		data = data.to(device)
-		sample, target = Variable(torch.randn([1,1,28,28]).to(device), requires_grad=True), Variable(target).to(device)
+		sample, target = Variable(data.data.to(device), requires_grad=True), Variable(target).to(device)
 
 		sample = torch.clamp(sample,0,1)
 
-		sample, target = Variable(sample.data, requires_grad=True).to(device), Variable(target).to(device)
-		output = model(sample)
-		model.zero_grad()
-		output[0][target_].backward(retain_graph=True)
+		for epoch in range(EPOCHS):
 
-		jacobian_t = sample.grad.data
-		for i in range(model.n_classes):
-			if i == target_:
-				continue
-			output[0][i].backward(retain_graph=True)
+			sample, target = Variable(sample.data, requires_grad=True).to(device), Variable(target).to(device)
+			output = torch.sigmoid(model(sample))
+			loss = L2_loss(output, target) + LAMBDA * L2_loss(sample, data)
+			model.zero_grad()
+			loss.backward()
 
-		jacobian_non_t = sample.grad.data - jacobian_t
+			delta = EPSILON * sample.grad.data
 
-		saliency = np.zeros(sample.shape)
-		for i in range(28):
-			for j in range(28):
-				if jacobian_t[0][0][i][j]<0 or jacobian_non_t[0][0][i][j]>0:
+			sample = Variable(sample.data, requires_grad=True).to(device)
+			output = model(sample)
+			model.zero_grad()
+			output[0][target_].backward(retain_graph=True)
+
+			jacobian_t = sample.grad.data
+			for i in range(model.n_classes):
+				if i == target_:
 					continue
-				saliency[i] = -jacobian_t[0][0][i][j]*jacobian_non_t[0][0][i][j]
+				output[0][i].backward(retain_graph=True)
 
-		indices = np.argsort(saliency)
+			jacobian_non_t = sample.grad.data - jacobian_t
 
-		# for i in range(size(indices)):
-		# sample = sample + saliency
+			saliency = np.zeros(sample.reshape(-1).shape)
+			for i in range(sample.shape[2]):
+				for j in range(sample.shape[3]):
+					if jacobian_t[0][0][i][j]<0 or jacobian_non_t[0][0][i][j]>0:
+						continue
+					saliency[i*sample.shape[3]+j] = jacobian_t[0][0][i][j]*abs(jacobian_non_t[0][0][i][j])
 
-		sample = torch.clamp(sample,0,1)
+			indices = np.argsort(saliency)
+
+			with torch.no_grad():
+				for i in range(len(indices)-1,-1,-1):
+					sample, target = Variable(sample.data).to(device), Variable(target).to(device)
+					output = model(sample)
+					pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
+					# print(pred[0][0])
+					# print(target[0][target_])
+					if torch.eq(pred[0][0],target[0][target_].long()):
+						# print(pred[0][0])
+						print("Done")
+						break
+					sample[0][0][indices[i]//sample.shape[3]][indices[i]%sample.shape[3]] -= delta[0][0][indices[i]//sample.shape[3]][indices[i]%sample.shape[3]]
+					sample = (sample-torch.min(sample))/(torch.max(sample)-torch.min(sample))	
+
+		sample, target = Variable(sample.data).to(device), Variable(target).to(device)
+		output = model(sample)
+		pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
+		print(pred[0][0])
 
 		samples[idx] = sample[0]
 		idx += 1
@@ -133,9 +160,9 @@ def adv_sample_papernot(model_name, dataset, target):
 		if idx == NUM_SAMPLES:
 			break
 
-	# for i in range(5):
-	# 	inp = int(input("idx: "))
-	# 	utils.disp_img(samples[inp], (100,100))
-	# 	utils.disp_img(dataset[inp][0], (100,100))
+	for i in range(5):
+		inp = int(input("idx: "))
+		utils.disp_img(samples[inp], (100,100))
+		utils.disp_img(dataset[inp][0], (100,100))
 
 	return samples
