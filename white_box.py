@@ -17,8 +17,6 @@ def adv_sample(model_name, dataset, target):
 	EPSILON = 0.5
 	NUM_SAMPLES = 10
 
-	samples = []
-
 	L2_loss = nn.MSELoss().to(device)
 	Classification_loss = nn.CrossEntropyLoss().to(device)
 	
@@ -61,11 +59,6 @@ def adv_sample(model_name, dataset, target):
 		if idx == NUM_SAMPLES:
 			break
 
-	for i in range(5):
-		inp = int(input("idx: "))
-		utils.disp_img(samples[inp], (100,100))
-		utils.disp_img(dataset[inp][0], (100,100))
-
 	return samples
 
 def adv_sample_papernot(model_name, dataset, target):
@@ -75,7 +68,7 @@ def adv_sample_papernot(model_name, dataset, target):
 	'''
 	device = utils.get_device(1)
 
-	EPOCHS = 100
+	EPOCHS = 10
 	LAMBDA = 20.0
 	NUM_SAMPLES = 10
 	EPSILON = 0.5
@@ -111,7 +104,7 @@ def adv_sample_papernot(model_name, dataset, target):
 			model.zero_grad()
 			loss.backward()
 
-			delta = EPSILON * sample.grad.data
+			delta = EPSILON * torch.sign(sample.grad.data)
 
 			sample = Variable(sample.data, requires_grad=True).to(device)
 			output = model(sample)
@@ -119,12 +112,13 @@ def adv_sample_papernot(model_name, dataset, target):
 			output[0][target_].backward(retain_graph=True)
 
 			jacobian_t = sample.grad.data
+			jacobian_non_t = torch.zeros(jacobian_t.shape)
 			for i in range(model.n_classes):
 				if i == target_:
 					continue
+				model.zero_grad()
 				output[0][i].backward(retain_graph=True)
-
-			jacobian_non_t = sample.grad.data - jacobian_t
+				jacobian_non_t += sample.grad.data
 
 			saliency = np.zeros(sample.reshape(-1).shape)
 			for i in range(sample.shape[2]):
@@ -149,20 +143,10 @@ def adv_sample_papernot(model_name, dataset, target):
 					sample[0][0][indices[i]//sample.shape[3]][indices[i]%sample.shape[3]] -= delta[0][0][indices[i]//sample.shape[3]][indices[i]%sample.shape[3]]
 					sample = (sample-torch.min(sample))/(torch.max(sample)-torch.min(sample))	
 
-		sample, target = Variable(sample.data).to(device), Variable(target).to(device)
-		output = model(sample)
-		pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
-		print(pred[0][0])
-
 		samples[idx] = sample[0]
 		idx += 1
 
 		if idx == NUM_SAMPLES:
 			break
-
-	for i in range(5):
-		inp = int(input("idx: "))
-		utils.disp_img(samples[inp], (100,100))
-		utils.disp_img(dataset[inp][0], (100,100))
 
 	return samples

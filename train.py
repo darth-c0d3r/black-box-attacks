@@ -62,8 +62,10 @@ def main():
 	# optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 	optimizer = optim.Adagrad(model.parameters(), lr=0.01)
 
-	train(model, dataset, criterion, optimizer, device)
-	utils.save_model(model)
+	# train(model, dataset, criterion, optimizer, device)
+	# utils.save_model(model)
+
+	adv_sample_papernot("conv1.pt", dataset["eval"], 1)
 
 if __name__ == '__main__':
 	main()

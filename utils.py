@@ -35,3 +35,11 @@ def save_model(model):
 		break
 
 	torch.save(model, folder+filename)
+
+
+def save_image(img, name):
+	torch.save(img, "adv_samples/"+name)
+
+def save_images(images, target):
+	for i in range(images.shape[0]):
+		save_image(images[i], "%d_%d.jpg"%(i,target))
