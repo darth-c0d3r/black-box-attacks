@@ -42,28 +42,6 @@ def train(model, dataset, criterion, optimizer, device):
 
 		# Evaluate
 		predict(model, dataset['eval'])
-		# model.eval()
-		# eval_loss = float(0)
-		# correct = 0
-		# eval_loader = torch.utils.data.DataLoader(dataset['eval'], batch_size=BATCH_SIZE, shuffle=False)
-
-		# with torch.no_grad():
-		# 	for data, target in eval_loader:
-		# 		data, target = Variable(data.to(device)), Variable((target).to(device))
-		# 		output = model(data)
-		# 		eval_loss += len(data) * criterion(output, target).item() # sum up batch loss
-		# 		pred = output.data.max(1, keepdim=True)[1] # get the index of the max log-probability
-		# 		correct += pred.eq(target.data.view_as(pred)).cpu().sum()
-
-		# eval_loss /= len(eval_loader.dataset)
-		# accuracy = float(correct) / len(eval_loader.dataset)
-
-		# print('Eval Epoch: {} [{}/{} ({:.6f}%)] Loss: {:.6f}, Accuracy: {}/{} ({:.6f})'.format(
-		# 			epoch, len(eval_loader.dataset), len(eval_loader.dataset),
-		# 			100.0, eval_loss, correct, len(eval_loader.dataset), accuracy))
-
-
-
 
 def main():
 

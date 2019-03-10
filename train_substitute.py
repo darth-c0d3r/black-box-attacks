@@ -5,10 +5,14 @@ import torch.optim as optim
 import utils
 from oracle import oracle
 from predict import predict
+from model import Classifier
+import torch.utils.data as TorchUtils
+import random
 
-def train(model, epochs, dataset, criterion, optimizer, device): # dataset has images and their labels
+from dataset import get_MNIST_Dataset
+
+def train(model, epochs, dataset, criterion, optimizer, device):
 	
-	REPORT_EVERY = len(dataset) // 3
 	BATCH_SIZE = 100
 
 	for epoch in range(1, epochs+1):
@@ -32,38 +36,68 @@ def train(model, epochs, dataset, criterion, optimizer, device): # dataset has i
 			loss.backward()
 			optimizer.step()
 
-			if batch_idx % REPORT_EVERY == REPORT_EVERY-1:
-				print('Train Epoch: {} [{}/{} ({:.6f}%)] Loss: {:.6f}, Accuracy: {}/{} ({:.6f})'.format(
-					epoch, (batch_idx * BATCH_SIZE) + len(data), len(train_loader.dataset),
-					float((batch_idx * BATCH_SIZE) + len(data))*100.0 / float(len(train_loader.dataset)), 
-					loss.item(), correct, len(data), float(correct)/float(len(data))))
-
-		# Evaluate
-		predict(model, dataset)
+		predict(model, test_dataset)
 
 
-def create_dataset(dataset, labels): # dataset has no target labels
+
+
+def create_dataset(dataset, labels): 
+		
+	data = torch.stack([img[0] for img in dataset])
+	target = torch.stack([label[0] for label in labels])
+
+	new_dataset = TorchUtils.TensorDataset(data,target)
+	return new_dataset
 
 	
+def augment_dataset(model, dataset, LAMBDA, device):
 
-def train_substitute(oracle, dataset): # dataset has no target labels
+	new_dataset = list()
+	data_loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True)
+
+	for data, target in data_loader:
+
+		data, target = Variable(data.to(device), requires_grad=True), Variable(target.to(device))
+		model.zero_grad()
+
+		output = model(data)
+		output[0][target].backward()
+
+		data_new = data[0] + LAMBDA * torch.sign(data.grad.data[0])
+		new_dataset.append(data_new.cpu())
+
+		# if(len(new_dataset) == 100):
+		# 	break
+
+	new_dataset = torch.stack([data_point for data_point in new_dataset])
+	new_dataset = TorchUtils.TensorDataset(new_dataset)
+
+	new_dataset = TorchUtils.ConcatDataset([dataset, new_dataset])
+	return new_dataset
+
+
+
+def train_substitute(oracle_model, dataset, test_dataset): 
 
 	device = utils.get_device(1)
+	oracle_model = oracle_model.to(device)
 
-	MAX_RHO = 5
-	LAMBDA = 0.3
+	MAX_RHO = 6
+	LAMBDA = 0.1
 	EPOCHS = 10
 
-	input_shape = list(init_dataset[0][0].shape)
 	n_classes = 10
+	input_shape = list(dataset[0][0].shape)
 
 	conv = [input_shape[0], 4, 8, 16, 32]
 	fc = []
 
 	model = None
-	for rho in MAX_RHO:
+	for rho in range(MAX_RHO):
 
-		dummy_labels = oracle(oracle_name, dataset)
+		input_shape = list(dataset[0][0].shape)
+
+		dummy_labels = oracle(oracle_model, dataset)
 		dummy_dataset = create_dataset(dataset, dummy_labels)
 
 		model = Classifier(input_shape, conv, fc, n_classes).to(device)
@@ -71,7 +105,27 @@ def train_substitute(oracle, dataset): # dataset has no target labels
 		optimizer = optim.Adagrad(model.parameters(), lr=0.01)
 
 		train(model, EPOCHS, dummy_dataset, criterion, optimizer, device)
+		print("Rho: %d"%(rho))
+		print("Dataset Size: %d"%(len(dataset)))
 
-		dataset = augment_dataset(dummy_dataset, LAMBDA)
+		dataset = augment_dataset(model, dummy_dataset, LAMBDA, device)
 
 	return model
+
+oracle_model = torch.load("saved_models/conv1.pt")
+
+dataset = get_MNIST_Dataset()
+test_dataset = dataset["eval"]
+dataset = dataset["train"]
+
+num_points = 150
+idxs = []
+for _ in range(num_points):
+	while True:
+		idx = random.randint(0,len(dataset)-1)
+		if idx not in idxs:
+			idxs.append(idx)
+			break
+
+dataset = TorchUtils.Subset(dataset, idxs)
+train_substitute(oracle_model, dataset, test_dataset)
