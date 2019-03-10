@@ -41,7 +41,9 @@ def save_image(img, name):
 	folder = "adv_samples"
 	if folder not in os.listdir():
 		os.mkdir("adv_samples")
-	torch.save(img, folder+"/"+name)
+	trans = torchvision.transforms.ToPILImage()
+	img = trans(img)
+	img.save(folder+"/"+name)
 
 def save_images(images, target):
 	for i in range(images.shape[0]):
