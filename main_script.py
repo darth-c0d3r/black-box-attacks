@@ -20,7 +20,8 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("--bb", help="Train Black box Initially", dest='bb',default=False,action='store_true')
 parser.add_argument("--sub", help="Train Substitute Model", dest='sub',default=False,action='store_true')
-parser.add_argument("--adv", help="Generate Adverserial Samples", dest='adv',default=False,action='store_true')
+parser.add_argument("--adv", help="Generate Adversarial Samples", dest='adv',default=False,action='store_true')
+parser.add_argument("--test", help="Test the model on Adversarial Samples", dest='test',default=False,action='store_true')
 
 _a = parser.parse_args()
 args = {}
@@ -79,7 +80,10 @@ if args['sub']:
 	lamba = 0.1 # float(input("Lambda: "))
 	epochs = 10 # int(input("Epochs: "))
 
-	model = trs.train_substitute(oracle_model, dataset, test_dataset, device, max_rho, lamba, epochs)
+	scratch = input("From scratch or not [y/n]: ")
+	model = None
+	if(scratch == 'y'): model = trs.train_substitute(oracle_model, dataset, test_dataset, device, max_rho, lamba, epochs)
+	else: model = trs.train_substitute_not_scratch(oracle_model, dataset, test_dataset, device, max_rho, lamba, epochs)
 
 	print("Saving Substitute Model:")
 	utils.save_model(model)
@@ -93,15 +97,10 @@ if args['adv']:
 	utils.save_images(samples, target)
 
 
-
-# oracle_model = torch.load("saved_models/conv1.pt")
-sub_model = torch.load("saved_models/sub1.pt")
-
-print("For sub model: ")
-data = get_Adv_Dataset()
-predict(sub_model, data, device)
-
-
-# print("For black box model: ")
-# data = get_Adv_Dataset()
-# predict(oracle_model, data, device)
+if args['test']:
+	model_name = 'sub1.pt' # input("Substitute Model Name: ")
+	model = torch.load("saved_models/conv1.pt")
+	data = get_Adv_Dataset()
+	
+	print("For", model_name[:-3], "model: ")
+	predict(model, data, device)
