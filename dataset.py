@@ -3,6 +3,7 @@ import torchvision
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import os
+from utils import *
 
 def get_MNIST_Dataset():
 
@@ -32,10 +33,9 @@ class Adv_Dataset(Dataset):
 		return self.size
 
 	def __getitem__(self, idx):
-		img = Image.open(self.root_dir+self.all_files[idx])
-		trans = torchvision.transforms.ToTensor()
 
-		sample = (trans(img), torch.tensor(self.all_labels[idx]))
+		img = read_tiff_image(self.root_dir+self.all_files[idx])
+		sample = (img, torch.tensor(self.all_labels[idx]))
 		return sample
 			
 

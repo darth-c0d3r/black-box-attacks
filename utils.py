@@ -2,6 +2,7 @@ from PIL import Image
 import torchvision
 import torch
 import os
+from libtiff import TIFF
 
 def disp_img(img, size=None):
 	trans = torchvision.transforms.ToPILImage()
@@ -37,14 +38,25 @@ def save_model(model):
 	torch.save(model, folder+filename)
 
 
-def save_image(img, name):
+def save_tiff_image(img, name):
 	folder = "adv_samples"
 	if folder not in os.listdir():
 		os.mkdir("adv_samples")
-	trans = torchvision.transforms.ToPILImage()
-	img = trans(img)
-	img.save(folder+"/"+name)
 
-def save_images(images, target):
+	img = img.detach().numpy()
+	tiff = TIFF.open(folder+"/"+name, 'w')
+	tiff.write_image(img)
+	tiff.close()
+
+	# trans = torchvision.transforms.ToPILImage()
+	# img = trans(img)
+	# img.save(folder+name)
+
+def save_tiff_images(images, target):
 	for i in range(images.shape[0]):
-		save_image(images[i], "%d_%d.jpg"%(i,target))
+		save_tiff_image(images[i], "%d_%d.tif"%(i,target))
+
+def read_tiff_image(file):
+	tiff = TIFF.open(file, 'r')
+	img = tiff.read_image()
+	return torch.tensor(img.reshape((1,img.shape[0], img.shape[1])))

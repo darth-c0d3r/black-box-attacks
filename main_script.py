@@ -37,7 +37,7 @@ utils.print_dataset_details(dataset)
 if args['bb']:
 	input_shape = list(dataset["train"][0][0].shape)
 
-	conv = [1, 4, 8, 16]
+	conv = [input_shape[0], 16, 32]
 	fc = [128, 64]
 	n_classes = 10
 
@@ -89,18 +89,20 @@ if args['sub']:
 	utils.save_model(model)
 
 if args['adv']:
-	model_name = 'sub1.pt' # input("Substitute Model Name: ")
-	target = 1 # int(input("Directed Label to misclassify: "))
+	model_name = input("Substitute Model Name: ")
+	target = 6 # int(input("Directed Label to misclassify: "))
+	num_samples = 20
 
-	samples = adv_sample(model_name, dataset['eval'], target)
+	samples = adv_sample(model_name, dataset['eval'], target, num_samples)
 
-	utils.save_images(samples, target)
+	utils.save_tiff_images(samples, target)
 
 
 if args['test']:
-	model_name = 'sub1.pt' # input("Substitute Model Name: ")
-	model = torch.load("saved_models/conv1.pt")
+	model_name = input("Test Model Name: ")
+	model = torch.load("saved_models/"+model_name)
 	data = get_Adv_Dataset()
+	print(data[0][0].shape)
 	
 	print("For", model_name[:-3], "model: ")
 	predict(model, data, device)

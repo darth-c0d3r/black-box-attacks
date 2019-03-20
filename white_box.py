@@ -5,17 +5,17 @@ import torch.optim as optim
 import utils
 import numpy as np
 
-def adv_sample(model_name, dataset, target):
+def adv_sample(model_name, dataset, target, num_samples):
 	'''
 	data contains (image, target_original_label) from a dataset class
 	target is the class to which the data is being misclassified
 	'''
 	device = utils.get_device(1)
 
-	EPOCHS = 1000
-	LAMBDA = 20.0
-	EPSILON = 0.5
-	NUM_SAMPLES = 10
+	EPOCHS = 5000
+	LAMBDA = 10.0
+	EPSILON = 0.25
+	NUM_SAMPLES = num_samples
 
 	L2_loss = nn.MSELoss().to(device)
 	Classification_loss = nn.CrossEntropyLoss().to(device)
@@ -36,8 +36,8 @@ def adv_sample(model_name, dataset, target):
 		data = data.to(device)
 		sample, target = Variable(torch.randn([1,1,28,28]).to(device), requires_grad=True), Variable(target).to(device)
 
-		# sample = (sample - torch.min(sample)) / (torch.max(sample) - torch.min(sample))
-		sample = torch.clamp(sample,0,1)
+		sample = (sample - torch.min(sample)) / (torch.max(sample) - torch.min(sample))
+		# sample = torch.clamp(sample,0,1)
 
 		for epoch in range(EPOCHS):
 
@@ -49,8 +49,8 @@ def adv_sample(model_name, dataset, target):
 
 			sample = sample - EPSILON * sample.grad.data
 
-			# sample = (sample - torch.min(sample)) / (torch.max(sample) - torch.min(sample))
-			sample = torch.clamp(sample,0,1)
+			sample = (sample - torch.min(sample)) / (torch.max(sample) - torch.min(sample))
+			# sample = torch.clamp(sample,0,1)
 
 		samples[idx] = sample[0]
 		output = model(sample)

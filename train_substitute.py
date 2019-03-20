@@ -76,8 +76,8 @@ def train_substitute(oracle_model, dataset, test_dataset, device, MAX_RHO, LAMBD
 	n_classes = 10
 	input_shape = list(dataset[0][0].shape)
 
-	conv = [input_shape[0], 4, 8, 16, 32]
-	fc = []
+	conv = [input_shape[0], 32, 64]
+	fc = [128, 64]
 
 	model = None
 	for rho in range(MAX_RHO):
