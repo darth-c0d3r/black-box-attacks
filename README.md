@@ -1,11 +1,15 @@
 # Black-Box Attacks on Neural Networks
 
 ## Abstract
-The paper[1] discusses an algorithm which allows us to craft an adversarial attack on black box networks. 
-The attacker has no knowledge of internals or training data of the victim.
+The paper[1] discusses an algorithm which allows us to craft an adversarial attack on black box networks. The attacker has no knowledge of internals or training data of the victim.
+<br>
+The solution presented treats the black box as an oracle and gets the output for several inputs and trains a substitute model on this data. Then adversarial samples are created by a white box attack on this substituted model. These adversarial samples work well to attack on the black box.
+<br>
+In this project, by the time of midterm review, we implemented this algorithm on MNIST dataset. Now, we tried to implement this on object detection.
 
-## Code Dependencies
+## Requirements
 ```
+python >=3.5
 numpy
 torch
 torchvision
