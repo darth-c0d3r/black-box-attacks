@@ -1,17 +1,38 @@
-### Black-Box Attacks on Neural Networks
+# Black-Box Attacks on Neural Networks
 
-Conv1
-conv = [1, 4, 8, 16]
-fc = [128, 64]
-EPOCHS = 20
-BATCH_SIZE = 1000
-optimizer = optim.Adagrad(model.parameters(), lr=0.01)
-Eval Accuracy = 98.70 %
+## Abstract
+    The paper[1] 
 
-Conv2
-conv = [1, 4, 8, 16, 32]
-fc = []
-EPOCHS = 20
-BATCH_SIZE = 1000
-optimizer = optim.Adagrad(model.parameters(), lr=0.01)
-Eval Accuracy = 98.37 %
+## Code Dependencies
+```
+numpy
+torch
+torchvision
+matplotlib
+tensorflow
+tensorboard
+terminaltables
+pillow
+tqdm
+libtiff
+```
+
+## SetUp & Instructions
+
+
+## Results
+
+
+## Additional Details
+
+
+## References
+### Papers
+1. [Practical Black-Box Attacks against Machine Learning] (https://arxiv.org/pdf/1602.02697.pdf)
+2. [On the Robustness of Semantic Segmentation Models to Adversarial Attacks] (https://arxiv.org/pdf/1711.09856.pdf)
+
+### Pre-trained model used in object detection
+* [Minimal PyTorch implementation of YOLOv3] (https://github.com/eriklindernoren/PyTorch-YOLOv3)
+
+### Dataset used
+* [COCO 2017 Val images] (http://images.cocodataset.org/zips/val2017.zip)
