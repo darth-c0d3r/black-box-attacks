@@ -31,9 +31,9 @@ libtiff
 ## Additional Details
 ### Algorithms
 1. Substitute DNN Training: 
-For oracle *Õ*, a maximum number max *ρ* of substitute training epochs, a substitute architecture *F* , and an initial training set *S_0*.
+For oracle *Õ*, a maximum number max *ρ* of substitute training epochs, a substitute architecture *F* , and an initial training set *S<sub>0</sub>*.
 
-Input: *Õ*, *max\_ρ* , *S\_0* , *λ*
+Input: *Õ*, *max<sub>ρ</sub>* , *S<sub>0</sub>* , *λ*
 
     1: Define architecture F
     2: for ρ ∈ 0 .. max\_ρ − 1 do
