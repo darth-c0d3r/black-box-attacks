@@ -31,7 +31,7 @@ libtiff
 ## Additional Details
 ### Algorithms
 #### Substitute DNN Training: 
-For oracle *Õ*, a maximum number *max<sub>ρ</sub>* of substitute training epochs, a substitute architecture *F*, and an initial training set *S<sub>0</sub>*.
+For oracle *Õ*, a maximum number *max<sub>ρ</sub>* of substitute training epochs, a substitute architecture *F* and initial training set *S<sub>0</sub>*.
 <br>
 Input: *Õ*, *max<sub>ρ</sub>* , *S<sub>0</sub>* , *λ*
 <br>
@@ -48,7 +48,8 @@ Input: *Õ*, *max<sub>ρ</sub>* , *S<sub>0</sub>* , *λ*
 6:		**end for**
 <br>
 7:	**return** θ<sub>F</sub>
-
+<br><br>
+This is used in [train_substitute.py](train_substitute.py). The function ```create_dataset()``` creates dataset out of the samples generated and ```augment_dataset()``` function augments it to the current dataset.
 
 ## References
 ### Papers
