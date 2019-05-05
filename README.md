@@ -31,20 +31,20 @@ libtiff
 ## Additional Details
 ### Algorithms
 1. Substitute DNN Training: 
-For oracle ```Õ```, a maximum number max ```ρ``` of substitute training epochs, a substitute architecture ```F``` , and an initial training set ```S_0```.
+For oracle *Õ*, a maximum number max *ρ* of substitute training epochs, a substitute architecture *F* , and an initial training set *S_0*.
 
-Input: ```Õ```, ```max\_ρ``` , ```S\_0``` , ```λ```
+Input: *Õ*, *max\_ρ* , *S\_0* , *λ*
 
-1: Define architecture F
-2: for ρ ∈ 0 .. max\_ρ − 1 do
-3: // Label the substitute training
-4: D ← {(x, Õ(x)) : x ∈ S\_ρ}
-5: // Train F on D to evaluate parameters θ\_F
-6: 0\_F ← train(F, D)
-7: // Perform Jacobian-based dataset augmentation
-8: S\_(ρ+1) ← {x + λ · sgn(J\_F [Õ(x)]) : x ∈ S\_ρ } ∪ S\_ρ
-9: end for
-10: <b>return<b> θ\_F
+    1: Define architecture F
+    2: for ρ ∈ 0 .. max\_ρ − 1 do
+    3: // Label the substitute training
+    4: D ← {(x, Õ(x)) : x ∈ S\_ρ}
+    5: // Train F on D to evaluate parameters θ\_F
+    6: 0\_F ← train(F, D)
+    7: // Perform Jacobian-based dataset augmentation
+    8: S\_(ρ+1) ← {x + λ · sgn(J\_F [Õ(x)]) : x ∈ S\_ρ } ∪ S\_ρ
+    9: end for
+    10: <b>return</b> θ\_F
 
 
 ## References
