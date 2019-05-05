@@ -1,7 +1,8 @@
 # Black-Box Attacks on Neural Networks
 
 ## Abstract
-    The paper[1] discusses an algorithm which allows us to craft an adversarial attack on black box networks. The attacker has no knowledge of internals or training data of the victim.
+    The paper[1] discusses an algorithm which allows us to craft an adversarial attack on black box networks. The attacker has no knowledge of 
+    internals or training data of the victim.
 
 ## Code Dependencies
 ```
