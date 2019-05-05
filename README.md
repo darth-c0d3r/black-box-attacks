@@ -31,7 +31,7 @@ libtiff
 ## Additional Details
 ### Algorithms
 #### Substitute DNN Training: 
-For oracle *Õ*, a maximum number max *ρ* of substitute training epochs, a substitute architecture *F* , and an initial training set *S<sub>0</sub>*.
+For oracle *Õ*, a maximum number *max<sub>ρ</sub>* of substitute training epochs, a substitute architecture *F*, and an initial training set *S<sub>0</sub>*.
 <br>
 Input: *Õ*, *max<sub>ρ</sub>* , *S<sub>0</sub>* , *λ*
 <br>
@@ -39,21 +39,15 @@ Input: *Õ*, *max<sub>ρ</sub>* , *S<sub>0</sub>* , *λ*
 <br>
 2:	**for** ρ ∈ 0 .. max<sub>ρ</sub> − 1 **do**
 <br>
-3:		*// Label the substitute training*
+3:		D ← {(x, Õ(x)) : x ∈ S<sub>ρ</sub>}  *// Label the substitute training*
 <br>
-4:		D ← {(x, Õ(x)) : x ∈ S<sub>ρ</sub>}
+4:		0<sub>F</sub> ← train(F, D)  *// Train F on D to evaluate parameters θ<sub>F</sub>*
 <br>
-5:		*// Train F on D to evaluate parameters θ<sub>F</sub>*
+5:		S<sub>(ρ+1)</sub> ← {x + λ · sgn(J<sub>F</sub> [Õ(x)]) : x ∈ S<sub>ρ</sub>} ∪ S<sub>ρ</sub> *// Perform Jacobian-based dataset augmentation*
 <br>
-6:		0<sub>F</sub> ← train(F, D)
+6:		**end for**
 <br>
-7:		*// Perform Jacobian-based dataset augmentation*
-<br>
-8:		S<sub>(ρ+1)</sub> ← {x + λ · sgn(J<sub>F</sub> [Õ(x)]) : x ∈ S<sub>ρ</sub>} ∪ S<sub>ρ</sub>
-<br>
-9:		**end for**
-<br>
-10:	**return** θ<sub>F</sub>
+7:	**return** θ<sub>F</sub>
 
 
 ## References
