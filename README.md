@@ -23,15 +23,34 @@ libtiff
 ```
 
 ## SetUp & Instructions
-
-
+1. Install the requirements
+2. Clone This directory
+```
+git clone https://github.com/darth-c0d3r/black_box_attacks
+```
+3. Clone Pretrained model
+```
+mkdir obj-dec
+cd obj-dec
+git clone https://github.com/eriklindernoren/PyTorch-YOLOv3
+cd PyTorch-YOLOv3/
+sudo pip3 install -r requirements.txt
+cd weights/
+bash download_weights.sh
+```
+4. Get [COCO dataset](http://images.cocodataset.org/zips/val2017.zip)
+5. Create substitute model
 ## Results
 
 
 ## Additional Details
 ### Folders and Files
+#### * [dataset.py](dataset.py)
+#### * [main_script.py](main_script.py)
+#### * [oracle.py](oracle.py)
+#### * [predict.py](predict.py)
 #### * [train_substitute.py](train_substitute.py):
-This file implements the Substitute DNN training algorithm given in paper[1] 
+This file implements the Substitute DNN training algorithm given in paper[1]. <br>
 For oracle *Õ*, a maximum number *max<sub>ρ</sub>* of substitute training epochs, a substitute architecture *F* and initial training set *S<sub>0</sub>*.
 <br>
 **Input**: *Õ*, *max<sub>ρ</sub>* , *S<sub>0</sub>* , *λ*
@@ -52,7 +71,10 @@ For oracle *Õ*, a maximum number *max<sub>ρ</sub>* of substitute training epoc
 <br><br>
 The function ```create_dataset()``` creates dataset out of the samples generated and ```augment_dataset()``` function augments it to the current dataset.
 
-#### 2. Adversarial Sample Crafting
+#### * [train.py](train.py)
+#### * [utilities.py](utilities.py)
+#### * [whitebox.py](whitebox.py)
+
 
 
 ## References
