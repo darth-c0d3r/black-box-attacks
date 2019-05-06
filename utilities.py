@@ -38,25 +38,35 @@ def save_model(model):
 	torch.save(model, folder+filename)
 
 
-def save_tiff_image(img, name):
-	folder = "adv_samples"
+def save_tiff_image(img, name, folder):
 	if folder not in os.listdir():
-		os.mkdir("adv_samples")
+		os.mkdir(folder)
 
 	img = img.detach().numpy()
+	print(img.shape)
 	tiff = TIFF.open(folder+"/"+name, 'w')
-	tiff.write_image(img)
+	tiff.write_image(img,write_rgb=True)
 	tiff.close()
 
 	# trans = torchvision.transforms.ToPILImage()
 	# img = trans(img)
 	# img.save(folder+name)
 
-def save_tiff_images(images, target):
+def save_tiff_images(images, target, names):
 	for i in range(images.shape[0]):
-		save_tiff_image(images[i], "%d_%d.tif"%(i,target))
+		name = names[i][:-5]
+		print(name)
+		save_tiff_image(images[i], "%s.tif_%d"%(name,target), "adv_samples")
 
 def read_tiff_image(file):
 	tiff = TIFF.open(file, 'r')
 	img = tiff.read_image()
-	return torch.tensor(img.reshape((1,img.shape[0], img.shape[1])))
+	print(img.shape)
+	return torch.tensor(img)
+
+def show_tiff_image(file):
+	img = read_tiff_image(file)
+	trans = torchvision.transforms.ToPILImage()
+	print(img.shape)
+	img = trans(img)
+	img.show()

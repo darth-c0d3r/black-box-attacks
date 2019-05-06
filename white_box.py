@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 import torch.optim as optim
-import utils
+import utilities
 import numpy as np
 
 def adv_sample(model_name, dataset, target, num_samples):
@@ -10,7 +10,7 @@ def adv_sample(model_name, dataset, target, num_samples):
 	data contains (image, target_original_label) from a dataset class
 	target is the class to which the data is being misclassified
 	'''
-	device = utils.get_device(1)
+	device = utilities.get_device(1)
 
 	EPOCHS = 5000
 	LAMBDA = 10.0
@@ -20,7 +20,11 @@ def adv_sample(model_name, dataset, target, num_samples):
 	L2_loss = nn.MSELoss().to(device)
 	Classification_loss = nn.CrossEntropyLoss().to(device)
 	
-	model = torch.load("saved_models/"+model_name).to(device)
+	model = None
+	if device == utilities.get_device(0):
+		model = torch.load("saved_models/"+model_name, map_location='cpu').to(device)
+	else:
+		model = torch.load("saved_models/"+model_name).to(device)
 	data_loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True)
 
 	idx = 0
@@ -30,11 +34,11 @@ def adv_sample(model_name, dataset, target, num_samples):
 	target_ = target
 	target = torch.zeros((1,model.n_classes))
 	target[0][target_] = 1
-
-	for data, label in data_loader:
+	names = []
+	for data, label, name in data_loader:
 
 		data = data.to(device)
-		sample, target = Variable(torch.randn([1,1,28,28]).to(device), requires_grad=True), Variable(target).to(device)
+		sample, target = Variable(data.to(device), requires_grad=True), Variable(target).to(device)
 
 		sample = (sample - torch.min(sample)) / (torch.max(sample) - torch.min(sample))
 		# sample = torch.clamp(sample,0,1)
@@ -52,23 +56,24 @@ def adv_sample(model_name, dataset, target, num_samples):
 			sample = (sample - torch.min(sample)) / (torch.max(sample) - torch.min(sample))
 			# sample = torch.clamp(sample,0,1)
 
+		names.append(name[0])
 		samples[idx] = sample[0]
 		output = model(sample)
 		pred = output.data.max(1, keepdim=True)[1]
-		print(pred[0][0])
+		print(pred[0][0].item(), label.item()) # predicted by our model, predicted by oracle
 		idx += 1
 
 		if idx == NUM_SAMPLES:
 			break
 
-	return samples
+	return samples, names
 
 def adv_sample_papernot(model_name, dataset, target):
 	'''
 	data contains (image, target_original_label) from a dataset class
 	target is the class to which the data is being misclassified
 	'''
-	device = utils.get_device(1)
+	device = utilities.get_device(1)
 
 	EPOCHS = 10
 	LAMBDA = 20.0

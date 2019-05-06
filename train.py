@@ -1,6 +1,6 @@
 import torch
 from model import Classifier
-import utils
+import utilities
 import torch.nn as nn
 import torch.optim as optim
 from torch.autograd import Variable
@@ -9,7 +9,7 @@ from predict import predict
 # hyper-parameters
 
 def train(model, dataset, criterion, optimizer, device, EPOCHS, BATCH_SIZE):
-
+	
 	REPORT_EVERY = (len(dataset["train"]) // BATCH_SIZE) // 5
 
 	for epoch in range(1,EPOCHS+1):

@@ -2,9 +2,10 @@ from dataset import *
 from model import *
 import train as tr
 import train_substitute as trs
-import utils
+import utilities
 from white_box import *
-from predict import predict
+from predict import *
+from stitch_photos import *
 from oracle import oracle
 
 import torch.nn as nn
@@ -20,8 +21,11 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("--bb", help="Train Black box Initially", dest='bb',default=False,action='store_true')
 parser.add_argument("--sub", help="Train Substitute Model", dest='sub',default=False,action='store_true')
+parser.add_argument("--yolo", help="Train Substitute Model for Yolo", dest='yolo',default=False,action='store_true')
 parser.add_argument("--adv", help="Generate Adversarial Samples", dest='adv',default=False,action='store_true')
 parser.add_argument("--test", help="Test the model on Adversarial Samples", dest='test',default=False,action='store_true')
+parser.add_argument("--yolotest", help="Test the Model for Yolo", dest='yolotest',default=False,action='store_true')
+parser.add_argument("--stitch", help="Stitch adv images into original", dest='stitch',default=False,action='store_true')
 
 _a = parser.parse_args()
 args = {}
@@ -29,16 +33,16 @@ args = {}
 for a in vars(_a):
 	args[a] = getattr(_a, a)
 
-device = utils.get_device(1)
+device = utilities.get_device(1)
 
-dataset = get_MNIST_Dataset()
-utils.print_dataset_details(dataset)
+dataset = get_Crop_Dataset()
+utilities.print_dataset_details(dataset)
 
 if args['bb']:
 	input_shape = list(dataset["train"][0][0].shape)
 
-	conv = [input_shape[0], 16, 32]
-	fc = [128, 64]
+	conv = [input_shape[0]]
+	fc = []
 	n_classes = 10
 
 	epochs = 20 # int(input("Epochs: "))
@@ -54,7 +58,7 @@ if args['bb']:
 	tr.train(model, dataset, criterion, optimizer, device, epochs, batch_size)
 
 	print("Saving Black Box:")
-	utils.save_model(model)
+	utilities.save_model(model)
 
 
 if args['sub']:
@@ -86,17 +90,35 @@ if args['sub']:
 	else: model = trs.train_substitute_not_scratch(oracle_model, dataset, test_dataset, device, max_rho, lamba, epochs)
 
 	print("Saving Substitute Model:")
-	utils.save_model(model)
+	utilities.save_model(model)
+
+if args['yolo']:
+
+	dataset = get_Crop_Dataset()
+	test_dataset = dataset["eval"]
+	dataset = dataset["train"]
+
+	max_rho = 6 # int(input("Max_Rho: "))
+	lamba = 0.1 # float(input("Lambda: "))
+	epochs = 10 # int(input("Epochs: "))
+
+	scratch = input("From scratch or not [y/n]: ")
+	model = None
+	if(scratch == 'y'): model = trs.train_substitute(None, dataset, test_dataset, device, max_rho, lamba, epochs)
+	else: model = trs.train_substitute_not_scratch(None, dataset, test_dataset, device, max_rho, lamba, epochs)
+
+	print("Saving Substitute Model:")
+	utilities.save_model(model)
 
 if args['adv']:
-	model_name = input("Substitute Model Name: ")
+	# model_name = input("Substitute Model Name: ")
+	model_name = "sub_crop_no_r2_200.pt"
 	target = 6 # int(input("Directed Label to misclassify: "))
 	num_samples = 20
 
-	samples = adv_sample(model_name, dataset['eval'], target, num_samples)
+	samples, names = adv_sample(model_name, dataset['eval'], target, num_samples)
 
-	utils.save_tiff_images(samples, target)
-
+	utilities.save_tiff_images(samples, target, names)
 
 if args['test']:
 	model_name = input("Test Model Name: ")
@@ -106,3 +128,11 @@ if args['test']:
 	
 	print("For", model_name[:-3], "model: ")
 	predict(model, data, device)
+
+if args['yolotest']:
+	data = get_Adv_Dataset()
+	print(data[0][0].shape)	
+	predict_obj(data, device)
+
+if args['stitch']:
+	stitch("adv_samples", "obj-dec/PyTorch-YOLOv3/img_logs.csv")

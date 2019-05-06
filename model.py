@@ -13,8 +13,8 @@ class Classifier(nn.Module):
 
 		# convolutional layers
 		kernel_size = [5] * (len(conv)-1)
-		stride = [1] * (len(conv)-1)
-		stride[0]=2
+		stride = [3							] * (len(conv)-1)
+		# stride[0]=2
 		padding = [1] * (len(conv)-1)
 
 		self.conv_layers = nn.ModuleList()
