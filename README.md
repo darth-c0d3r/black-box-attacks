@@ -35,7 +35,7 @@ git clone https://github.com/darth-c0d3r/black_box_attacks
 ```
 python3 main_script.py --yolo
 ```
-It asks to save the model. Give it a proper name. The mode lis saved in the folder ```saved_models/```
+It asks to save the model. Give it a proper name. The model is saved in the folder ```saved_models/```
 * Create adversarial samples
 ```
 python3 main_script.py --adv
